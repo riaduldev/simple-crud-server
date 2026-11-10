@@ -57,6 +57,35 @@ app.post('/users', async(req, res) => {
     res.send(result)
 })
 
+app.patch('/users/:id', async(req, res) => {
+    const id = req.params.id;
+    const updateUser = req.body;
+
+    console.log("update user id:", id , "with data:", updateUser);
+
+    const filter = {_id: new ObjectId(id)};
+    const options = { upsert: true };
+    const updateDoc ={
+    $set: {
+        name: updateUser.name,
+        email: updateUser.email
+    }};
+
+    const result = await users.updateOne(filter,updateDoc, options)
+    res.send(result)
+})
+
+app.delete('/users/:id', async(req, res) => {
+    const id = req.params.id;
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    const query = {_id: new ObjectId(id)};
+    const result = await users.deleteOne(query);
+    res.json({ deletedCount: result.deletedCount })
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);
 });
